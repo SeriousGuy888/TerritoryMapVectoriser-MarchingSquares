@@ -1,4 +1,6 @@
 import numpy as np
+from attr import dataclass
+from numpy.core.records import ndarray
 
 
 def corners_to_squares(corners: np.ndarray) -> np.ndarray:
@@ -48,3 +50,60 @@ def corners_to_squares(corners: np.ndarray) -> np.ndarray:
             array[y][x] = state
 
     return array
+
+
+def squares_to_contour_lines(squares: np.ndarray) -> np.ndarray:
+    """
+    Given a 2d array of squares, where each cell is a number from 0 to 15 describing the state of the square,
+    return a new 2d array with all the square states converted to the appropriate contour lines at that square.
+
+    Using lookup table from https://en.wikipedia.org/wiki/Marching_squares#Basic_algorithm
+    """
+
+    height, width = squares.shape
+
+    contours = np.empty((height, width))
+
+    for y in range(height):
+        for x in range(width):
+            state = squares[y][x]
+
+            contour = ContourLines()
+            match state:
+                case 0x0001 | 0x1110:
+                    contour.s_w = True
+                case 0x0010 | 0x1101:
+                    contour.s_e = True
+                case 0x0011 | 0x1100:
+                    contour.e_w = True
+                case 0x0100 | 0x1011:
+                    contour.n_e = True
+                case 0x0101:  # saddle cases
+                    contour.n_w = True
+                    contour.s_e = True
+                case 0x1010:
+                    contour.n_e = True
+                    contour.s_w = True
+                case 0x0110 | 0x1001:
+                    contour.n_s = True
+                case 0x0111 | 0x1000:
+                    contour.n_w = True
+
+            contours[y][x] = contour  # broken for now because wrong datatype
+
+    return contours
+
+
+@dataclass
+class ContourLines:
+    """
+    Represents the contour lines at a square, where each attribute represents whether a connection exists
+    between two particular sides of the square.
+    """
+
+    n_s: bool = False
+    e_w: bool = False
+    n_e: bool = False
+    n_w: bool = False
+    s_e: bool = False
+    s_w: bool = False
