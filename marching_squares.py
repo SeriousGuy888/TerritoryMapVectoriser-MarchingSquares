@@ -1,6 +1,5 @@
 import numpy as np
 from attr import dataclass
-from numpy.core.records import ndarray
 
 
 def corners_to_squares(corners: np.ndarray) -> np.ndarray:
@@ -70,23 +69,23 @@ def squares_to_contour_lines(squares: np.ndarray) -> np.ndarray:
 
             contour = ContourLines()
             match state:
-                case 0x0001 | 0x1110:
+                case 0b0001 | 0b1110:
                     contour.s_w = True
-                case 0x0010 | 0x1101:
+                case 0b0010 | 0b1101:
                     contour.s_e = True
-                case 0x0011 | 0x1100:
+                case 0b0011 | 0b1100:
                     contour.e_w = True
-                case 0x0100 | 0x1011:
+                case 0b0100 | 0b1011:
                     contour.n_e = True
-                case 0x0101:  # saddle cases
+                case 0b0101:  # saddle cases
                     contour.n_w = True
                     contour.s_e = True
-                case 0x1010:
+                case 0b1010:
                     contour.n_e = True
                     contour.s_w = True
-                case 0x0110 | 0x1001:
+                case 0b0110 | 0b1001:
                     contour.n_s = True
-                case 0x0111 | 0x1000:
+                case 0b0111 | 0b1000:
                     contour.n_w = True
 
             contours[y][x] = contour  # broken for now because wrong datatype
