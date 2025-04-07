@@ -27,7 +27,7 @@ def find_unique_colours(pixel_data: np.ndarray) -> set[tuple[int, int, int]]:
         for pixel in row:
             if not np.array_equal(pixel, EMPTY_PIXEL):
                 unique_colours.add(tuple(pixel))
-    return unique_colours
+    return unique_colours  # type: ignore
 
 
 def mask_colour(pixel_data: np.ndarray, colour: tuple[int, int, int]) -> np.ndarray:
