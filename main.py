@@ -1,10 +1,11 @@
 from PIL import Image
 import numpy as np
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 
 from marching_squares import contour_grid_to_path_list, corners_to_squares, squares_to_contour_grid
 
-IMAGE_PATH = "./images/sheapland tiles.png"
+IMAGE_PATH = "./images/sheapland tiles on full size map.png"
 EMPTY_PIXEL = [255, 255, 255]  # RGB value representing an empty pixel
 
 
@@ -24,12 +25,16 @@ def find_unique_colours(pixel_data: np.ndarray) -> set[tuple[int, int, int]]:
 
     Return a set of the colours found.
     """
-    unique_colours = set()
-    for row in pixel_data:
-        for pixel in row:
-            if not np.array_equal(pixel, EMPTY_PIXEL):
-                unique_colours.add(tuple(pixel))
-    return unique_colours  # type: ignore
+    # Reshape image into (height * width, 3) array
+    flat_pixels = pixel_data.reshape(-1, 3)
+
+    # Remove pixels that match EMPTY_PIXEL
+    mask = ~np.all(flat_pixels == EMPTY_PIXEL, axis=1)
+    filtered_pixels = flat_pixels[mask]
+
+    # Get unique colours as tuples
+    unique = np.unique(filtered_pixels, axis=0)
+    return set(map(tuple, unique))  # type: ignore
 
 
 def mask_colour(pixel_data: np.ndarray, colour: tuple[int, int, int]) -> np.ndarray:
@@ -44,11 +49,13 @@ def mask_colour(pixel_data: np.ndarray, colour: tuple[int, int, int]) -> np.ndar
 
 if __name__ == "__main__":
     pixel_data = load_image(IMAGE_PATH)
+    print("loaded image")
 
     unique_colours = find_unique_colours(pixel_data)
-    # print(f"Unique region colours found: {unique_colours}")
+    print(f"Unique region colours found: {unique_colours}")
 
     masked = mask_colour(pixel_data, unique_colours.pop())
+    print("got mask")
 
     # plt.imshow(masked, cmap="gray")
     # plt.title("Masked Region")
@@ -58,7 +65,10 @@ if __name__ == "__main__":
     # plt.show()
 
     squares = corners_to_squares(masked)
+    print("converted to squares")
     contour_lines = squares_to_contour_grid(squares)
+    print("converted to contours")
     pen_paths = contour_grid_to_path_list(contour_lines)
+    print("converted to paths")
 
     print([[[point[0], point[1]] for point in path] for path in pen_paths])
