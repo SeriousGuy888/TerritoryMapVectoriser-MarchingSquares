@@ -108,11 +108,15 @@ def squares_to_contour_grid(squares: np.ndarray) -> np.ndarray:
     return contour_grid
 
 
-def contour_grid_to_path_list(contour_grid: np.ndarray) -> list[list[tuple[float, float]]]:
+def contour_grid_to_path_list(contour_grid: np.ndarray, coordinate_offset: tuple[int, int]) -> \
+        list[list[tuple[float, float]]]:
     """
     Given a grid of numbers that can be deserialised to ContourLine,
     return a list of pen paths.
+
+    The pen paths will be offset by the coordinate_offset given in (x, y) format.
     """
+    offset_x, offset_y = coordinate_offset
 
     # Line segments that have to be included in the SVG path.
     segments = []
@@ -121,7 +125,7 @@ def contour_grid_to_path_list(contour_grid: np.ndarray) -> list[list[tuple[float
     for y, x in places_with_contour_lines:
         contour_num = contour_grid[y][x]
         contour = ContourLines.from_number(contour_num)
-        segments.extend(contour.get_line_segments(x, y))
+        segments.extend(contour.get_line_segments(x + offset_x, y + offset_y))
 
     paths = build_paths_from_segment_list(segments)
     for p in paths:
