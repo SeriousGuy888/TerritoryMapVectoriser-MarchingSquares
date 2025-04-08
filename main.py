@@ -123,7 +123,11 @@ if __name__ == "__main__":
         r, g, b = colour
         colour_hex_code = f"{r:0>2x}{g:0>2x}{b:0>2x}"
 
-        tiles[colour_hex_code] = paths
+        tiles[colour_hex_code] = {
+            "name": colour_hex_code,
+            "neighbours": [],
+            "polygons": paths,
+        }
 
-    with open("tiles.json", "w") as f:
-        json.dump(tiles, f, indent=2)
+        with open("tiles.json", "w") as f:
+            json.dump(tiles, f)
