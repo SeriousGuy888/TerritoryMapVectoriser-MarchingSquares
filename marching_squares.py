@@ -185,7 +185,7 @@ def build_paths_from_segment_list(segments: list[tuple[tuple[float, float], tupl
         visited.add(current_point)
 
         while True:
-            neighbours = [p for p in segment_neighbourships[current_point] if p not in visited]
+            neighbours = [p for p in segment_neighbourships[current_point] if p not in visited]  # type: list
             if not neighbours:
                 break
 
