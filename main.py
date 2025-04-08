@@ -1,6 +1,9 @@
+import json
+
 from PIL import Image
 import numpy as np
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 
 from marching_squares import contour_grid_to_path_list, corners_to_squares, squares_to_contour_grid
 
@@ -74,15 +77,37 @@ def mask_colour(pixel_data: np.ndarray, colour: tuple[int, int, int]) -> \
     return full_mask[min_y:max_y + 1, min_x:max_x + 1], (min_x, min_y)
 
 
+def get_paths_for_colour(pixel_data: np.ndarray, colour: tuple[int, int, int]):
+    """
+    Given the original image pixel data and the colour to look for, isolate that colour and
+    return a list of pen paths that trace the regions occupied by that exact colour.
+    """
+
+    masked, mask_offset = mask_colour(pixel_data, colour)
+    # print(f"got mask for {colour}")
+
+    squares = corners_to_squares(masked)
+    # print("converted to squares")
+    contour_lines = squares_to_contour_grid(squares)
+    # print("converted to contours")
+    pen_paths = contour_grid_to_path_list(contour_lines, mask_offset)
+    # print("converted to paths")
+
+    # apply the origin offset to the paths
+    # also change all the Tuple coordinates to Lists
+    #   (because im going to paste this into a JSON file)
+    modified_paths = [[[point[0] - ORIGIN_OFFSET[0], point[1] - ORIGIN_OFFSET[1]] for point in path] for
+                      path in pen_paths]
+
+    return modified_paths
+
+
 if __name__ == "__main__":
     pixel_data = load_image(IMAGE_PATH)
     print("loaded image")
 
     unique_colours = find_unique_colours(pixel_data)
     print(f"Unique region colours found: {unique_colours}")
-
-    masked, mask_offset = mask_colour(pixel_data, unique_colours.pop())
-    print("got mask")
 
     # plt.imshow(masked, cmap="gray")
     # plt.title("Masked Region")
@@ -91,15 +116,14 @@ if __name__ == "__main__":
     # plt.imshow(pixel_data)
     # plt.show()
 
-    squares = corners_to_squares(masked)
-    print("converted to squares")
-    contour_lines = squares_to_contour_grid(squares)
-    print("converted to contours")
-    pen_paths = contour_grid_to_path_list(contour_lines, mask_offset)
-    print("converted to paths")
+    tiles = {}
+    for colour in tqdm(unique_colours):
+        paths = get_paths_for_colour(pixel_data, colour)
 
-    paths_with_coords_as_lists = [[[point[0] - ORIGIN_OFFSET[0], point[1] - ORIGIN_OFFSET[1]] for point in path] for
-                                  path in pen_paths]
+        r, g, b = colour
+        colour_hex_code = f"{r:0>2x}{g:0>2x}{b:0>2x}"
 
-    print(len(paths_with_coords_as_lists))
-    print(paths_with_coords_as_lists)
+        tiles[colour_hex_code] = paths
+
+    with open("tiles.json", "w") as f:
+        json.dump(tiles, f, indent=2)

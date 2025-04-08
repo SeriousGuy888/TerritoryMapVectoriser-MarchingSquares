@@ -125,7 +125,7 @@ def contour_grid_to_path_list(contour_grid: np.ndarray, coordinate_offset: tuple
     for y, x in places_with_contour_lines:
         contour_num = contour_grid[y][x]
         contour = ContourLines.from_number(contour_num)
-        segments.extend(contour.get_line_segments(x + offset_x, y + offset_y))
+        segments.extend(contour.get_line_segments(float(x) + offset_x, float(y) + offset_y))
 
     paths = build_paths_from_segment_list(segments)
     for p in paths:
