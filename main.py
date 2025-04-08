@@ -7,9 +7,9 @@ from tqdm import tqdm
 
 from marching_squares import contour_grid_to_path_list, corners_to_squares, squares_to_contour_grid
 
-IMAGE_PATH = "./images/sheapland tiles on full size map.png"
+IMAGE_PATH = "./images/slightly_expanded.png"
 OUTPUT_PATH = "tiles.json"
-EMPTY_PIXEL = [255, 255, 255]  # RGB value representing an empty pixel
+EMPTY_PIXEL = [0, 0, 0]  # RGB value representing an empty pixel
 ORIGIN_OFFSET = [5001, 5001]  # the position in the image to consider as (0, 0) when outputting paths.
 
 
