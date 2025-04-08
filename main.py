@@ -8,6 +8,7 @@ from tqdm import tqdm
 from marching_squares import contour_grid_to_path_list, corners_to_squares, squares_to_contour_grid
 
 IMAGE_PATH = "./images/sheapland tiles on full size map.png"
+OUTPUT_PATH = "tiles.json"
 EMPTY_PIXEL = [255, 255, 255]  # RGB value representing an empty pixel
 ORIGIN_OFFSET = [5001, 5001]  # the position in the image to consider as (0, 0) when outputting paths.
 
@@ -129,5 +130,5 @@ if __name__ == "__main__":
             "polygons": paths,
         }
 
-        with open("tiles.json", "w") as f:
+        with open(OUTPUT_PATH, "w") as f:
             json.dump(tiles, f)
