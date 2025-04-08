@@ -2,6 +2,8 @@ from PIL import Image
 import numpy as np
 import matplotlib.pyplot as plt
 
+from marching_squares import contour_grid_to_path_list, corners_to_squares, squares_to_contour_grid
+
 IMAGE_PATH = "./images/sheapland tiles.png"
 EMPTY_PIXEL = [255, 255, 255]  # RGB value representing an empty pixel
 
@@ -50,8 +52,13 @@ if __name__ == "__main__":
 
     # plt.imshow(masked, cmap="gray")
     # plt.title("Masked Region")
-    # plt.axis("off")
     # plt.show()
 
     # plt.imshow(pixel_data)
     # plt.show()
+
+    squares = corners_to_squares(masked)
+    contour_lines = squares_to_contour_grid(squares)
+    pen_paths = contour_grid_to_path_list(contour_lines)
+
+    print([[[point[0], point[1]] for point in path] for path in pen_paths])
